@@ -100,11 +100,11 @@
   }
 
   // The optional extra pictures of a garment (<name>_over / _under / _arm_L /
-  // _arm_R). Only asked for once the garment's own picture has loaded, so
+  // _arm_R / _L / _R; the last two are the ragdoll's own left / right leg pictures). Only asked for once the garment's own picture has loaded, so
   // clothes that don't exist don't cost four failed requests each.
   function extraLayers(prefix) {
     const main = new Image();
-    const names = { over: "_over", under: "_under", armL: "_arm_L", armR: "_arm_R" };
+    const names = { over: "_over", under: "_under", armL: "_arm_L", armR: "_arm_R", legL: "_L", legR: "_R" };
     const out = {};
     Object.keys(names).forEach(k => {
       const im = new Image();

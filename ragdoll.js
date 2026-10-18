@@ -1000,7 +1000,7 @@
       }
       // Sleeves: each arm's clothing is its own picture, drawn above the body and
       // turned with that arm (nothing is cut out of the garments).
-      for (const id of ['arm_L', 'arm_R']) {
+      for (const id of ['arm_L', 'arm_R', 'leg_L', 'leg_R']) {
         const src = armCloth && armCloth[id];
         const def = CFG.parts.find(p => p.id === id);
         if (!src || !def) continue;
@@ -1016,6 +1016,14 @@
           ox: pv.x * cs - b.x0, oy: pv.y * cs - b.y0,
           restAngle: Math.atan2(ch.y - pv.y, ch.x - pv.x),
         };
+        if (def.drop) {
+          // Leg pictures (<garment>_L / _R: shoes, socks) turn with their leg,
+          // just above it, and sit as low as the legs do.
+          sleeve.drop = true;
+          const legAt = out.findIndex(o => o.id === id);
+          if (legAt >= 0) out.splice(legAt + 1, 0, sleeve); else out.push(sleeve);
+          continue;
+        }
         // A sleeve goes just behind the top (the body's over-the-chest layer), so
         // the top's own picture lies over the sleeve root; without one, last.
         const topAt = out.findIndex(o => o.id === 'body_over');

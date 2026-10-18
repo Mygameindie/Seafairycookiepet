@@ -211,7 +211,7 @@
     Object.keys(sel).forEach(k => {
       const it = cat[k] && cat[k].items && cat[k].items[sel[k]];
       if (!it) return;
-      ['img', 'back', 'over', 'under', 'armL', 'armR'].forEach(n => {
+      ['img', 'back', 'over', 'under', 'armL', 'armR', 'legL', 'legR'].forEach(n => {
         const im = it[n];
         ready += im ? (im._failed ? 'x' : im.complete && (!window.outfitTintReady || window.outfitTintReady(im, col[k])) ? '1' : '0') : '-';
       });
@@ -264,14 +264,18 @@
     const W = Math.round(RCFG.SRC_W * cs), H = Math.round(RCFG.SRC_H * cs);
     const sized = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return c; };
     const cloth = sized(), hang = sized(), over = sized(), under = sized(), blow = sized(),
-      stiff = sized(), armL = sized(), armR = sized(), back = sized(), overTop = sized();
+      stiff = sized(), armL = sized(), armR = sized(), legL = sized(), legR = sized(), back = sized(), overTop = sized();
     let blowFrom = Infinity;
     const D = window.drawOutfitOverlay;
     if (typeof D === 'function') {
       // whole: true (outfit_config.js): carried by the body in one piece, drawn
       // over the chest (a bra: its cups and straps never go off with an arm).
       const covers = it => !it.stiff && !it.whole && coversChest(it);
-      D(cloth.getContext('2d'), 'stand', 0, 0, W, H, i, it => !it.stiff && !it.whole && !it.blows && !(covers(it) && !it.hangs));
+      // A garment with its own <name>_L / <name>_R leg pictures (shoes, socks) is
+      // not cut along the legs: those two pictures replace it on the legs.
+      const legPic = im => !!im && !im._failed && im.complete && im.naturalWidth > 0;
+      const ownLegs = it => legPic(it.legL) || legPic(it.legR);
+      D(cloth.getContext('2d'), 'stand', 0, 0, W, H, i, it => !ownLegs(it) && !it.stiff && !it.whole && !it.blows && !(covers(it) && !it.hangs));
       D(hang.getContext('2d'), 'stand', 0, 0, W, H, i, it => (it.hangs || it.blows) && !it.stiff && !it.whole);
       D(blow.getContext('2d'), 'stand', 0, 0, W, H, i, it => {
         if (!it.blows || it.stiff || it.whole) return false;
@@ -306,6 +310,8 @@
       D(under.getContext('2d'), 'stand', 0, 0, W, H, i, null, 'under');
       D(armL.getContext('2d'), 'stand', 0, 0, W, H, i, null, 'armL');
       D(armR.getContext('2d'), 'stand', 0, 0, W, H, i, null, 'armR');
+      D(legL.getContext('2d'), 'stand', 0, 0, W, H, i, null, 'legL');
+      D(legR.getContext('2d'), 'stand', 0, 0, W, H, i, null, 'legR');
     }
     if (typeof window.drawOutfitBehind === 'function') {
       window.drawOutfitBehind(back.getContext('2d'), 'stand', 0, 0, W, H, i, () => true);
@@ -314,7 +320,7 @@
     try {
       const partImgs = face ? Object.assign({}, pet.partImgs, { head: pet.faceImgs[face] }) : pet.partImgs;
       pet.body.buildArt(partImgs, cloth, cs, hang, over, under, blow,
-        isFinite(blowFrom) ? blowFrom : null, stiff, { arm_L: armL, arm_R: armR }, back, overTop);
+        isFinite(blowFrom) ? blowFrom : null, stiff, { arm_L: armL, arm_R: armR, leg_L: legL, leg_R: legR }, back, overTop);
     } catch (err) {
       // Reading the pictures' pixels is refused when the game is opened as a
       // file:// page (serve it over http, e.g. GitHub Pages). Keep the sprite.
