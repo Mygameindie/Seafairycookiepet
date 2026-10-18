@@ -44,6 +44,7 @@
     try {
       if (on && !toyOn[index] && window.PetStats && window.PetStats.toyTouch) window.PetStats.toyTouch(index);
       toyOn[index] = !!on;
+      (window._petToy = window._petToy || [])[index] = !!on;   // read by PetFace.shyImg in every mode
       if (typeof window.setPetToyState === 'function') {
         window.setPetToyState(index, on);
       }

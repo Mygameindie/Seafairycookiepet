@@ -587,7 +587,7 @@
         ctx.save();
         ctx.filter = useTintFallback ? (pet.drawFilter || "none") : "none";
         if (typeof window.drawOutfitBehind === 'function') window.drawOutfitBehind(ctx, "stand", pet.x, pet.y + recoil, pet.w, pet.h, i);
-        ctx.drawImage(img, pet.x, pet.y + recoil, pet.w, pet.h);
+        ctx.drawImage((window.PetFace && window.PetFace.shyImg ? window.PetFace.shyImg(img, i) : img), pet.x, pet.y + recoil, pet.w, pet.h);
 
         if (window.drawOutfitOverlay) {
           window.drawOutfitOverlay(ctx, "stand", pet.x, pet.y + recoil, pet.w, pet.h, i);

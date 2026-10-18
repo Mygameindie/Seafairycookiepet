@@ -762,6 +762,8 @@
         if (toyImg && !toyImg._failed) img = toyImg;
       }
 
+      if (window.PetFace && window.PetFace.shyImg && !pet._toyActive) img = window.PetFace.shyImg(img, i);
+
       if (isRag(pet, i) && pet.body && pet.body.parts) {
         ctx.save();
         pet.body.draw(ctx, 0, 0, hdDpr());

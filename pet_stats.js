@@ -322,6 +322,43 @@
       return null;
     },
   };
+  // Every mode draws the pet from its own base picture. shyImg(img, i) gives
+  // back that picture with the shy head on it while the pet is shy
+  // (head_shy.png, or head_shy_1.png while a toy touches it), so a mode only
+  // has to pass the picture it is about to draw through it. Special pose
+  // pictures (base_happy, base_bath2 ...) are left alone: only the plain
+  // base.png / base_2.png (and the standing frames of them) get the shy head.
+  const shyCache = new Map();
+  window.PetFace.shyImg = function (img, i) {
+    try {
+      if (!img || !img.complete || !img.naturalWidth || window.PetFace.get(i) !== 'shy') return img;
+      if (!img._plainBase && !/(?:^|\/)base(_2)?\.png(?:\?.*)?$/i.test(img.src)) return img;
+      const toy = !!(window._petToy && window._petToy[i || 0]);
+      const suffix = (window.PetGender && typeof window.PetGender.suffix === 'function') ? window.PetGender.suffix() : '';
+      const key = img.src + '|' + (toy ? 'shy_1' : 'shy') + suffix;
+      let e = shyCache.get(key);
+      if (!e) {
+        const head = new Image();
+        e = { head, out: null };
+        head.onload = () => {
+          try {
+            const W = img.naturalWidth, H = img.naturalHeight;
+            const c = document.createElement('canvas');
+            c.width = W; c.height = H;
+            const x = c.getContext('2d');
+            x.drawImage(img, 0, 0, W, H);
+            x.clearRect(0, 0, W, Math.round(H * 606 / 1134));
+            x.drawImage(head, 0, 0, W, H);
+            e.out = c;
+          } catch (_) { /* pixels unreadable (file:// page) */ }
+        };
+        head.src = 'images/parts/head_' + (toy ? 'shy_1' : 'shy') + suffix + '.png';
+        shyCache.set(key, e);
+      }
+      return e.out || img;
+    } catch (_) { return img; }
+  };
+
   (function hookFaces() {
     const P = window.PetStats;
     const on = (method, pick, ms) => {
