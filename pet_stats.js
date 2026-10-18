@@ -338,7 +338,8 @@
     try {
       if (!img || !img.complete || !img.naturalWidth || window.PetFace.get(i) !== 'shy') return img;
       if (!img._plainBase && !/(?:^|\/)base(_2)?\.png(?:\?.*)?$/i.test(img.src)) return img;
-      const toy = !!(window._petToy && window._petToy[i || 0]);
+      // a toy touching it, or wind blowing on it (trolling blower) -> head_shy_1
+      const toy = !!(window._petToy && window._petToy[i || 0]) || !!(window.ClothWind && window.ClothWind.get(i || 0) > 0);
       const suffix = (window.PetGender && typeof window.PetGender.suffix === 'function') ? window.PetGender.suffix() : '';
       const key = img.src + '|' + (toy ? 'shy_1' : 'shy') + suffix;
       let e = shyCache.get(key);
