@@ -213,6 +213,8 @@
         if (window.PetStats && typeof window.PetStats.play === 'function') {
           window.PetStats.play(n);
         }
+        // ...and keep making it shyer the longer the toy stays on it.
+        if (window.PetStats && typeof window.PetStats.shyUp === 'function') window.PetStats.shyUp(n, 4);
       } catch (_) {}
     });
   }
@@ -362,7 +364,8 @@
     }
 
     modeMenu.querySelectorAll('button').forEach(btn => {
-      if (btn === toggleBtn) return;
+      // Confidence is not a mode: it must not hide the Toys button.
+      if (btn === toggleBtn || btn.id === 'confidence-btn') return;
       btn.addEventListener('click', () => {
         setToyUIVisible(btn.id === 'normal-btn');
       });
