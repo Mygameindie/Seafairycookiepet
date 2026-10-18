@@ -253,6 +253,13 @@
       petStats[i].shy = clamp(petStats[i].shy + (amount || 10));
     },
 
+    // The Confidence button: the pet is not shy any more.
+    confidence(petIdx) {
+      const i = (typeof petIdx === "number") ? petIdx : 0;
+      petStats[i].shy = 0;
+      doSave();
+    },
+
     // A toy started touching the pet (pet_toys.js): makes it shy.
     toyTouch(petIdx) {
       const i = (typeof petIdx === "number") ? petIdx : 0;
@@ -412,6 +419,18 @@
     on('heal', () => 'heal', 5000);
     on('playground', () => 'happy', 3000);
   })();
+
+  // 💪 Confidence button (in the mode bar, works in every mode): resets Shy.
+  const confBtn = document.getElementById("confidence-btn");
+  if (confBtn) {
+    confBtn.addEventListener("click", () => {
+      for (let i = 0; i < NUM_PETS; i++) window.PetStats.confidence(i);
+      if (window.PetFace) window.PetFace.set(0, "happy", 2000);
+      updateUI();
+      const hint = document.getElementById("hint-text") || document.getElementById("hint");
+      if (hint) hint.textContent = "Confidence boosted!";
+    });
+  }
 
   buildStatsUI();
   updateUI();
