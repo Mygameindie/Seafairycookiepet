@@ -13,11 +13,13 @@
     happiness: 0.08,
     cleanliness: 0.06,
     energy: 0.10,
+    shy: 0.6,        // shyness fades once you stop fussing over the pet
   };
+  const SHY_FACE_AT = 30;   // shy at or above this -> head_shy.png (head_shy_1.png while a toy touches)
 
   // --- Default stats ---
   function defaultStats() {
-    return { hunger: 80, happiness: 90, cleanliness: 85, energy: 75 };
+    return { hunger: 80, happiness: 90, cleanliness: 85, energy: 75, shy: 0 };
   }
 
   // --- Load from localStorage ---
@@ -81,6 +83,7 @@
     for (let i = 0; i < NUM_PETS; i++) {
       const s = petStats[i];
       const isSleeping = Array.isArray(window._petsSleeping) && window._petsSleeping[i];
+      s.shy = clamp(s.shy - DECAY.shy * dt);
       s.hunger = clamp(s.hunger - DECAY.hunger * dt);
       s.happiness = clamp(s.happiness - DECAY.happiness * dt);
       s.cleanliness = clamp(s.cleanliness - DECAY.cleanliness * dt);
@@ -125,6 +128,7 @@
         ${statBar("happiness", i, "Happy", "#4ade80")}
         ${statBar("cleanliness", i, "Clean", "#38bdf8")}
         ${statBar("energy", i, "Energy", "#a78bfa")}
+        ${statBar("shy", i, "Shy", "#f472b6")}
       `;
       statsEl.appendChild(card);
     }
@@ -161,7 +165,7 @@
   function updateUI() {
     for (let i = 0; i < NUM_PETS; i++) {
       const s = petStats[i];
-      for (const key of ["hunger", "happiness", "cleanliness", "energy"]) {
+      for (const key of ["hunger", "happiness", "cleanliness", "energy", "shy"]) {
         const fill = document.getElementById(`stat-fill-${key}-${i}`);
         const val = document.getElementById(`stat-val-${key}-${i}`);
         if (fill) fill.style.width = Math.round(s[key]) + "%";
@@ -241,6 +245,13 @@
     play(petIdx) {
       const i = (typeof petIdx === "number") ? petIdx : 0;
       petStats[i].happiness = clamp(petStats[i].happiness + 2);
+      petStats[i].shy = clamp(petStats[i].shy + 8);   // being picked up / petted
+    },
+
+    // A toy started touching the pet (pet_toys.js): makes it shy.
+    toyTouch(petIdx) {
+      const i = (typeof petIdx === "number") ? petIdx : 0;
+      petStats[i].shy = clamp(petStats[i].shy + 10);
     },
 
     karaoke(petIdx) {
@@ -292,7 +303,8 @@
 
   // ===========================================================
   // 🙂 FACES — which head the pet wears (head_<name>.png in images/parts/;
-  // head_<name>_2.png for character 2). What you do to the pet sets a face
+  // head_<name>_2.png for character 2). A pet whose Shy stat is up wears
+  // head_shy.png (head_shy_1.png while a toy touches it). What you do to the pet sets a face
   // for a few seconds, so it is still there when you come back to normal
   // mode: fed something it likes -> happy, disliked / trolled -> disgust,
   // medicine -> heal, karaoke -> music, shower -> shower. A pet with any stat
@@ -306,6 +318,7 @@
       if (f && f.until > performance.now()) return f.name;
       const s = petStats[i || 0];
       if (s && Math.min(s.hunger, s.happiness, s.cleanliness, s.energy) < 20) return 'sick';
+      if (s && s.shy >= SHY_FACE_AT) return 'shy';
       return null;
     },
   };

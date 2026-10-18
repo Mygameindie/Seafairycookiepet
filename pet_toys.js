@@ -39,8 +39,11 @@
 
   // Analog of Toy3's setGenital(num, on): hold the pet's toy-touched image
   // while a toy overlaps it, revert when the toy leaves.
+  const toyOn = [];
   function setPetToy(index, on) {
     try {
+      if (on && !toyOn[index] && window.PetStats && window.PetStats.toyTouch) window.PetStats.toyTouch(index);
+      toyOn[index] = !!on;
       if (typeof window.setPetToyState === 'function') {
         window.setPetToyState(index, on);
       }

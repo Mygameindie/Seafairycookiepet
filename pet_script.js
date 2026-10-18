@@ -162,11 +162,13 @@
   function partSuffix(i) { return (window.PetGender && typeof window.PetGender.suffix === 'function') ? window.PetGender.suffix() : ''; }
 
   // Heads besides the normal one: 1 = touched by a toy (head_1.png), the rest
-  // are set by PetFace (pet_stats.js) from what you do to the pet.
-  const FACES = ['1', 'happy', 'disgust', 'sick', 'heal', 'music', 'shower'];
+  // are set by PetFace (pet_stats.js) from what you do to the pet (shy_1 = shy + toy).
+  const FACES = ['1', 'happy', 'disgust', 'sick', 'heal', 'music', 'shower', 'shy', 'shy_1'];
   // The face the pet wears right now, or null for its normal head.
   function faceOf(pet, i) {
-    const name = pet._toyActive ? '1' : (window.PetFace ? window.PetFace.get(i) : null);
+    let name = window.PetFace ? window.PetFace.get(i) : null;
+    // A shy pet touched by a toy wears head_shy_1.png (else head_1.png).
+    if (pet._toyActive) name = name === 'shy' ? 'shy_1' : '1';
     return name && pet.faceImgs && pet.faceImgs[name] ? name : null;
   }
 
