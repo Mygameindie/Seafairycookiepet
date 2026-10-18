@@ -42,6 +42,8 @@
   const toyOn = [];
   function setPetToy(index, on) {
     try {
+      // Another toy may still be on this pet: only the last one leaving clears it.
+      if (!on && [...colliding].some(k => Number(k.split('-')[1]) === index)) return;
       if (on && !toyOn[index] && window.PetStats && window.PetStats.toyTouch) window.PetStats.toyTouch(index);
       toyOn[index] = !!on;
       (window._petToy = window._petToy || [])[index] = !!on;   // read by PetFace.shyImg in every mode

@@ -245,7 +245,6 @@
     play(petIdx) {
       const i = (typeof petIdx === "number") ? petIdx : 0;
       petStats[i].happiness = clamp(petStats[i].happiness + 2);
-      petStats[i].shy = clamp(petStats[i].shy + 8);   // being picked up / petted
     },
 
     // Something embarrassing (wind under the skirt ...): raise the Shy stat.
@@ -358,7 +357,10 @@
             e.out = c;
           } catch (_) { /* pixels unreadable (file:// page) */ }
         };
-        head.src = 'images/parts/head_' + (toy ? 'shy_1' : 'shy') + suffix + '.png';
+        const name = 'images/parts/head_' + (toy ? 'shy_1' : 'shy');
+        // No head for character 2 yet: use the plain one.
+        if (suffix) head.onerror = () => { head.onerror = null; head.src = name + '.png'; };
+        head.src = name + suffix + '.png';
         shyCache.set(key, e);
       }
       return e.out || img;

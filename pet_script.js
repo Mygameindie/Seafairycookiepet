@@ -511,7 +511,10 @@
     if (activePet) {
       // Playing with pet boosts happiness
       const petIdx = pets.indexOf(activePet);
-      if (petIdx >= 0 && window.PetStats) window.PetStats.play(petIdx);
+      if (petIdx >= 0 && window.PetStats) {
+        window.PetStats.play(petIdx);
+        window.PetStats.shyUp(petIdx, 8);   // being picked up / petted
+      }
       activePet.dragging = false;
     }
     activePet = null;
