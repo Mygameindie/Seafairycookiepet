@@ -162,11 +162,13 @@
   function partSuffix(i) { return (window.PetGender && typeof window.PetGender.suffix === 'function') ? window.PetGender.suffix() : ''; }
 
   // Heads besides the normal one: 1 = touched by a toy (head_1.png), the rest
-  // are set by PetFace (pet_stats.js) from what you do to the pet.
-  const FACES = ['1', 'happy', 'disgust', 'sick', 'heal', 'music', 'shower'];
+  // are set by PetFace (pet_stats.js) from what you do to the pet (shy_1 = shy + toy).
+  const FACES = ['1', 'happy', 'disgust', 'sick', 'heal', 'music', 'shower', 'shy', 'shy_1'];
   // The face the pet wears right now, or null for its normal head.
   function faceOf(pet, i) {
-    const name = pet._toyActive ? '1' : (window.PetFace ? window.PetFace.get(i) : null);
+    let name = window.PetFace ? window.PetFace.get(i) : null;
+    // A shy pet touched by a toy wears head_shy_1.png (else head_1.png).
+    if (pet._toyActive) name = name === 'shy' ? 'shy_1' : '1';
     return name && pet.faceImgs && pet.faceImgs[name] ? name : null;
   }
 
@@ -515,7 +517,10 @@
     if (activePet) {
       // Playing with pet boosts happiness
       const petIdx = pets.indexOf(activePet);
-      if (petIdx >= 0 && window.PetStats) window.PetStats.play(petIdx);
+      if (petIdx >= 0 && window.PetStats) {
+        window.PetStats.play(petIdx);
+        window.PetStats.shyUp(petIdx, 8);   // being picked up / petted
+      }
       activePet.dragging = false;
     }
     activePet = null;
@@ -541,7 +546,15 @@
   function onResize() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    groundY = canvas.height - groundHeight;
+    syncGround();
+  }
+  // canvas_fix.js resizes the canvas on its own (after coming back from the
+  // share sheet / another app, the window size settles late and no 'resize'
+  // reaches this mode), so the ground is re-read from the canvas every frame.
+  function syncGround() {
+    const gy = canvas.height - groundHeight;
+    if (gy === groundY) return;
+    groundY = gy;
 
     // keep pet in bounds
     pets[0].x = Math.min(pets[0].x, canvas.width - pets[0].w / 2);
@@ -558,6 +571,7 @@
   // === Update ===
   let lastT = performance.now();
   function update() {
+    syncGround();
     const now = performance.now();
     // dt in "60fps frames", capped so a background-tab hiccup can't launch pets.
     const dt = clamp((now - lastT) / 16.667, 0.25, 2.5);
@@ -765,6 +779,8 @@
         }
         if (toyImg && !toyImg._failed) img = toyImg;
       }
+
+      if (window.PetFace && window.PetFace.shyImg && !pet._toyActive) img = window.PetFace.shyImg(img, i);
 
       if (isRag(pet, i) && pet.body && pet.body.parts) {
         ctx.save();
