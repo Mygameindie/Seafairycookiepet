@@ -1018,8 +1018,7 @@
         };
         if (def.drop) {
           // Leg pictures (<garment>_L / _R: shoes, socks) turn with their leg,
-          // just above it, and sit as low as the legs do.
-          sleeve.drop = true;
+          // right above it.
           const legAt = out.findIndex(o => o.id === id);
           if (legAt >= 0) out.splice(legAt + 1, 0, sleeve); else out.push(sleeve);
           continue;
