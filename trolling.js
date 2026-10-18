@@ -510,10 +510,10 @@
       // side: where the blower is under the skirt (-1 left .. 1 right) - that side lifts first.
       const side = pet.wind ? (lastCanvasPoint.x - (pet.x + pet.w / 2)) / (pet.w * 0.38) : 0;
       if (window.ClothWind) window.ClothWind.set(i, pet.wind, side);
-      // Wind under the skirt makes the pet shy (head_shy, unless it is sick), plus a troll stat hit.
+      // Wind under the skirt: head_shy_1 while it blows (PetFace.shyImg), plus a troll stat hit.
       if (pet.wind && now > (pet.nextWindTrollAt || 0)) {
         pet.nextWindTrollAt = now + 1500;
-        if (window.PetStats) { window.PetStats.troll(i); window.PetStats.shyUp(i, 35); }
+        if (window.PetStats) { window.PetStats.troll(i); }
       }
     });
   }

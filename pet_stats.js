@@ -336,10 +336,15 @@
   const shyCache = new Map();
   window.PetFace.shyImg = function (img, i) {
     try {
-      if (!img || !img.complete || !img.naturalWidth || window.PetFace.get(i) !== 'shy') return img;
+      if (!img || !img.complete || !img.naturalWidth) return img;
+      // Wind blowing on the pet (trolling blower) shows head_shy_1 whatever its Shy
+      // stat is; otherwise only a shy pet wears the shy head. Sick comes first.
+      const face = window.PetFace.get(i);
+      const wind = !!(window.ClothWind && window.ClothWind.get(i || 0) > 0);
+      if (face !== 'shy' && !(wind && face !== 'sick')) return img;
       if (!img._plainBase && !/(?:^|\/)base(_2)?\.png(?:\?.*)?$/i.test(img.src)) return img;
       // a toy touching it, or wind blowing on it (trolling blower) -> head_shy_1
-      const toy = !!(window._petToy && window._petToy[i || 0]) || !!(window.ClothWind && window.ClothWind.get(i || 0) > 0);
+      const toy = !!(window._petToy && window._petToy[i || 0]) || wind;
       const suffix = (window.PetGender && typeof window.PetGender.suffix === 'function') ? window.PetGender.suffix() : '';
       const key = img.src + '|' + (toy ? 'shy_1' : 'shy') + suffix;
       let e = shyCache.get(key);
