@@ -15,7 +15,7 @@
     energy: 0.10,
     shy: 0.6,        // shyness fades once you stop fussing over the pet
   };
-  const SHY_FACE_AT = 30;   // shy at or above this -> head_shy.png (head_shy_1.png while a toy touches)
+  const SHY_FACE_AT = 70;   // shy at or above this -> head_shy.png (head_shy_1.png while a toy touches)
 
   // --- Default stats ---
   function defaultStats() {
