@@ -345,17 +345,37 @@
       if (!e) {
         const head = new Image();
         e = { head, out: null };
-        head.onload = () => {
+        // Draw the shy head over the body. A body built from parts keeps its
+        // back hair etc.: the parts (all but the head) are redrawn under the
+        // new head. A real base picture just has its head area replaced.
+        const paint = layers => {
           try {
             const W = img.naturalWidth, H = img.naturalHeight;
             const c = document.createElement('canvas');
             c.width = W; c.height = H;
             const x = c.getContext('2d');
-            x.drawImage(img, 0, 0, W, H);
-            x.clearRect(0, 0, W, Math.round(H * 606 / 1134));
+            if (layers) layers.forEach(l => x.drawImage(l, 0, 0, W, H));
+            else { x.drawImage(img, 0, 0, W, H); x.clearRect(0, 0, W, Math.round(H * 606 / 1134)); }
             x.drawImage(head, 0, 0, W, H);
+            // look like a loaded <img> to the modes' "is it ready" checks
+            c.complete = true; c.naturalWidth = W; c.naturalHeight = H; c._failed = false;
             e.out = c;
           } catch (_) { /* pixels unreadable (file:// page) */ }
+        };
+        head.onload = () => {
+          if (!img._plainBase) return paint(null);
+          const cfg = window.RAGDOLL_CONFIG;
+          const names = ((cfg && cfg.parts) || []).map(q => q.file).filter(n => n !== 'head');
+          const list = names.length ? names : ['back_hair', 'back_wings', 'back_tail', 'leg_L', 'leg_R', 'arm_L', 'arm_R', 'body', 'chest_L', 'chest_R'];
+          const got = {};
+          let left = list.length;
+          const done = () => { if (--left === 0) paint(list.map(n => got[n]).filter(Boolean)); };
+          list.forEach(n => {
+            const im = new Image();
+            im.onload = () => { got[n] = im; done(); };
+            im.onerror = done;
+            im.src = 'images/parts/' + n + suffix + '.png';
+          });
         };
         const name = 'images/parts/head_' + (toy ? 'shy_1' : 'shy');
         // No head for character 2 yet: use the plain one.
