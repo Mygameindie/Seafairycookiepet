@@ -248,6 +248,12 @@
       petStats[i].shy = clamp(petStats[i].shy + 8);   // being picked up / petted
     },
 
+    // Something embarrassing (wind under the skirt ...): raise the Shy stat.
+    shyUp(petIdx, amount) {
+      const i = (typeof petIdx === "number") ? petIdx : 0;
+      petStats[i].shy = clamp(petStats[i].shy + (amount || 10));
+    },
+
     // A toy started touching the pet (pet_toys.js): makes it shy.
     toyTouch(petIdx) {
       const i = (typeof petIdx === "number") ? petIdx : 0;
