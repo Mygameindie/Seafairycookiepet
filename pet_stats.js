@@ -13,7 +13,7 @@
     happiness: 0.08,
     cleanliness: 0.06,
     energy: 0.10,
-    shy: 0.6,        // shyness fades once you stop fussing over the pet
+    shy: 0.15,       // shyness fades slowly (~3 min from 100 to 70); the Confidence button resets it
   };
   const SHY_FACE_AT = 70;   // shy at or above this -> head_shy.png (head_shy_1.png while a toy touches)
 
