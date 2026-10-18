@@ -540,7 +540,15 @@
   function onResize() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    groundY = canvas.height - groundHeight;
+    syncGround();
+  }
+  // canvas_fix.js resizes the canvas on its own (after coming back from the
+  // share sheet / another app, the window size settles late and no 'resize'
+  // reaches this mode), so the ground is re-read from the canvas every frame.
+  function syncGround() {
+    const gy = canvas.height - groundHeight;
+    if (gy === groundY) return;
+    groundY = gy;
 
     // keep pet in bounds
     pets[0].x = Math.min(pets[0].x, canvas.width - pets[0].w / 2);
@@ -557,6 +565,7 @@
   // === Update ===
   let lastT = performance.now();
   function update() {
+    syncGround();
     const now = performance.now();
     // dt in "60fps frames", capped so a background-tab hiccup can't launch pets.
     const dt = clamp((now - lastT) / 16.667, 0.25, 2.5);
