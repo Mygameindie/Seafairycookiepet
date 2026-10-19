@@ -152,7 +152,7 @@
       list.forEach(entry => {
         const it = normItem(entry);
         if (it) catalog[0][c.key].items[it.id] = {
-            id: it.id, label: it.label, img: img(`${it.prefix}.png`), back: it.back ? img(`${it.back}.png`) : null,
+            id: it.id, label: it.label, z: Number(c.z) || 100, img: img(`${it.prefix}.png`), back: it.back ? img(`${it.back}.png`) : null,
             // Optional extra layers of the same garment (missing files are fine):
             // <name>_over.png drawn over the chest (bra straps), <name>_under.png
             // under it, <name>_arm_L/_arm_R.png the sleeves as their own pictures.

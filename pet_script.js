@@ -266,7 +266,7 @@
     const W = Math.round(RCFG.SRC_W * cs), H = Math.round(RCFG.SRC_H * cs);
     const sized = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return c; };
     const cloth = sized(), hang = sized(), over = sized(), under = sized(), blow = sized(),
-      stiff = sized(), armL = sized(), armR = sized(), legL = sized(), legR = sized(), back = sized(), overTop = sized();
+      stiff = sized(), armL = sized(), armR = sized(), legL = sized(), legR = sized(), legTop = sized(), back = sized(), overTop = sized();
     let blowFrom = Infinity;
     const D = window.drawOutfitOverlay;
     if (typeof D === 'function') {
@@ -278,6 +278,17 @@
       const legPic = im => !!im && !im._failed && im.complete && im.naturalWidth > 0;
       const ownLegs = it => legPic(it.legL) || legPic(it.legR);
       D(cloth.getContext('2d'), 'stand', 0, 0, W, H, i, it => !ownLegs(it) && !it.stiff && !it.whole && !it.blows && !(covers(it) && !it.hangs));
+      // Clothes worn OVER the leg pictures (pants over shoes, by z in outfit_config.js)
+      // are also drawn again above them, on the legs only (see buildArt).
+      let legZ = -Infinity;
+      Object.keys(window.selectedClothes[i] || {}).forEach(k => {
+        const cat = (window.dressUpCatalog[i] || window.dressUpCatalog[0] || {})[k];
+        const it = cat && cat.items && cat.items[window.selectedClothes[i][k]];
+        if (it && ownLegs(it)) legZ = Math.max(legZ, it.z || 0);
+      });
+      if (isFinite(legZ)) {
+        D(legTop.getContext('2d'), 'stand', 0, 0, W, H, i, it => it.z > legZ && !ownLegs(it) && !it.stiff && !it.whole && !it.blows && !it.hangs && !covers(it));
+      }
       D(hang.getContext('2d'), 'stand', 0, 0, W, H, i, it => (it.hangs || it.blows) && !it.stiff && !it.whole);
       D(blow.getContext('2d'), 'stand', 0, 0, W, H, i, it => {
         if (!it.blows || it.stiff || it.whole) return false;
@@ -322,7 +333,7 @@
     try {
       const partImgs = face ? Object.assign({}, pet.partImgs, { head: pet.faceImgs[face] }) : pet.partImgs;
       pet.body.buildArt(partImgs, cloth, cs, hang, over, under, blow,
-        isFinite(blowFrom) ? blowFrom : null, stiff, { arm_L: armL, arm_R: armR, leg_L: legL, leg_R: legR }, back, overTop);
+        isFinite(blowFrom) ? blowFrom : null, stiff, { arm_L: armL, arm_R: armR, leg_L: legL, leg_R: legR, legTop }, back, overTop);
     } catch (err) {
       // Reading the pictures' pixels is refused when the game is opened as a
       // file:// page (serve it over http, e.g. GitHub Pages). Keep the sprite.

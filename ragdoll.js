@@ -1021,6 +1021,24 @@
           // right above it.
           const legAt = out.findIndex(o => o.id === id);
           if (legAt >= 0) out.splice(legAt + 1, 0, sleeve); else out.push(sleeve);
+          // What is worn over the leg pictures (pants over shoes): this leg's share
+          // of it, drawn again right above them.
+          if (armCloth.legTop && def.region) {
+            const t = mkRead(CW, CH);
+            t.x.drawImage(armCloth.legTop, 0, 0);
+            t.x.globalCompositeOperation = 'destination-in';
+            shape(t.x, def.region);
+            const tb = bboxOf(t.x);
+            if (tb) {
+              const tc = mk(tb.x1 - tb.x0, tb.y1 - tb.y0);
+              tc.getContext('2d').drawImage(t.c, -tb.x0, -tb.y0);
+              out.splice(out.indexOf(sleeve) + 1, 0, {
+                id: id + '_cloth_top', pivot: def.pivot, child: def.child, canvas: tc,
+                ox: pv.x * cs - tb.x0, oy: pv.y * cs - tb.y0,
+                restAngle: sleeve.restAngle,
+              });
+            }
+          }
           continue;
         }
         // A sleeve goes just behind the top (the body's over-the-chest layer), so
