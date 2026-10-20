@@ -305,6 +305,10 @@
       D(over.getContext('2d'), 'stand', 0, 0, W, H, i, it => !ownsTop(it), 'over');
       D(overTop.getContext('2d'), 'stand', 0, 0, W, H, i, ownsTop, 'over');
       const sx = stiff.getContext('2d');
+      // cuffs: true (outfit_config.js): the sleeves are part of the top, not the arms:
+      // carried by the body and drawn just under the top, so they stay stuck to it.
+      D(sx, 'stand', 0, 0, W, H, i, it => it.cuffs, 'armL');
+      D(sx, 'stand', 0, 0, W, H, i, it => it.cuffs, 'armR');
       D(sx, 'stand', 0, 0, W, H, i, it => !it.whole && (it.stiff || (covers(it) && !it.hangs && !it.blows)));
       // A dress (or other hanging garment) that covers the chest: its top half
       // goes over the chest like a top, its skirt still hangs / blows.
@@ -321,12 +325,8 @@
         sx.drawImage(tops, 0, 0);
       }
       D(under.getContext('2d'), 'stand', 0, 0, W, H, i, null, 'under');
-      // cuffs: true (outfit_config.js): the sleeves are part of the top, not the arms:
-      // drawn over it on the body's over-the-chest layer, so they stay stuck to it.
       D(armL.getContext('2d'), 'stand', 0, 0, W, H, i, it => !it.cuffs, 'armL');
       D(armR.getContext('2d'), 'stand', 0, 0, W, H, i, it => !it.cuffs, 'armR');
-      D(overTop.getContext('2d'), 'stand', 0, 0, W, H, i, it => it.cuffs, 'armL');
-      D(overTop.getContext('2d'), 'stand', 0, 0, W, H, i, it => it.cuffs, 'armR');
       D(legL.getContext('2d'), 'stand', 0, 0, W, H, i, null, 'legL');
       D(legR.getContext('2d'), 'stand', 0, 0, W, H, i, null, 'legR');
     }
