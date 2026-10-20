@@ -87,6 +87,7 @@
       hangs: entry.hangs,
       stiff: entry.stiff,
       whole: entry.whole,
+      cuffs: entry.cuffs,
       blows: entry.blows,
     };
   }
@@ -163,6 +164,7 @@
             hangs: it.hangs === undefined ? c.hangs : !!it.hangs,
             stiff: !!it.stiff,
             whole: !!it.whole,
+            cuffs: !!it.cuffs,
             blows: it.blows === undefined ? c.blows : it.blows,
           };
       });
@@ -982,6 +984,39 @@
     dressBtn.textContent = `👗 Dress Up (${count} item${count === 1 ? "" : "s"})`;
   }
 
+  // Art is drawn on a full-size canvas, so a small item (a crop top) looks tiny as a
+  // thumbnail. Swap in a copy cropped to the visible pixels; keeps the original if
+  // the canvas can't be read.
+  const cropCache = {};
+  function cropToContent(src, imgEl) {
+    if (cropCache[src]) { imgEl.src = cropCache[src]; return; }
+    const full = new Image();
+    full.onload = () => {
+      try {
+        const c = document.createElement("canvas");
+        c.width = full.naturalWidth; c.height = full.naturalHeight;
+        const x = c.getContext("2d");
+        x.drawImage(full, 0, 0);
+        const d = x.getImageData(0, 0, c.width, c.height).data;
+        let x0 = c.width, y0 = c.height, x1 = -1, y1 = -1;
+        for (let y = 0; y < c.height; y++) for (let px = 0; px < c.width; px++) {
+          if (d[(y * c.width + px) * 4 + 3] > 8) {
+            if (px < x0) x0 = px; if (px > x1) x1 = px;
+            if (y < y0) y0 = y; if (y > y1) y1 = y;
+          }
+        }
+        if (x1 < 0) return;
+        const w = x1 - x0 + 1, h = y1 - y0 + 1;
+        const o = document.createElement("canvas");
+        o.width = w; o.height = h;
+        o.getContext("2d").drawImage(c, x0, y0, w, h, 0, 0, w, h);
+        cropCache[src] = o.toDataURL("image/png");
+        imgEl.src = cropCache[src];
+      } catch (e) { /* tainted canvas: keep the full image */ }
+    };
+    full.src = src;
+  }
+
   // A clothing item shown as an image thumbnail (falls back to text/emoji).
   function itemThumb(it, active, onClick) {
     const b = document.createElement("button");
@@ -1001,6 +1036,7 @@
     } else if (it.img && !it.img._failed) {
       const im = document.createElement("img");
       im.src = it.img.src;
+      cropToContent(it.img.src, im);
       im.alt = it.label || "";
       im.draggable = false;
       im.style.cssText = "flex:1;width:48px;height:48px;object-fit:contain;";

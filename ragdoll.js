@@ -490,7 +490,8 @@
       // swinging the body, which needs the bone solve that follows it).
       if (last && tipHeld) return;
       let lo = L.lo, hi = L.hi;
-      if (tipHeld) {
+      if (this.armsLocked && ARM_LIMITS.includes(L)) { lo = hi = 0; }   // cuffs worn: arms stay put
+      else if (tipHeld) {
         // Only the side named in heldLo/heldHi is widened (the arm may go further
         // UP when the pet hangs from that hand, never further down into the body).
         if (L.held === undefined && L.heldLo === undefined && L.heldHi === undefined) return;
@@ -657,7 +658,7 @@
       // when the worn garments have them, nothing is cut along the arms and the
       // stiff garments stay whole. Without them the old cuts are used.
       const armPic = id => armCloth && armCloth[id] && armCloth[id].getContext('2d').getImageData(0, 0, CW, CH).data.some((v, i) => i % 4 === 3 && v > 6);
-      const armArt = !!(armPic('arm_L') || armPic('arm_R'));
+      const armArt = !!(armPic('arm_L') || armPic('arm_R') || (armCloth && armCloth.armArt));
       const hasRegion = p => p.region && !(armArt && (p.id === 'arm_L' || p.id === 'arm_R'));
 
       const bboxOf = (ctx) => {
@@ -964,7 +965,7 @@
         // A stiff garment's share: all of it but what the arms, legs and head took
         // (all of it when the sleeves are their own pictures).
         const t = mkRead(CW, CH);
-        if (!armArt && over) t.x.drawImage(over, 0, 0);
+        if (over) t.x.drawImage(over, 0, 0);   // under the top: a top covers a bra
         const st = mkRead(CW, CH);
         st.x.drawImage(stiff, 0, 0);
         if (!armArt) {
@@ -972,7 +973,6 @@
           for (const o of regionParts) if (!o.offset) shape(st.x, o.region);
         }
         t.x.drawImage(st.c, 0, 0);
-        if (armArt && over) t.x.drawImage(over, 0, 0);
         overAll = t.c;
       }
       if (overTop) {

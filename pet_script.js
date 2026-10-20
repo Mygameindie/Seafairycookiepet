@@ -258,6 +258,13 @@
   // Cut the clothes up along the body parts and hand them to the skeleton.
   // Only redone when the outfit or the art changes.
   function buildBody(pet, i) {
+    // A garment with cuffs: true (outfit_config.js) has its sleeves stuck to the top,
+    // so the arms can't move away from them.
+    pet.body.armsLocked = Object.keys(window.selectedClothes[i] || {}).some(k => {
+      const cat = (window.dressUpCatalog[i] || window.dressUpCatalog[0] || {})[k];
+      const it = cat && cat.items && cat.items[window.selectedClothes[i][k]];
+      return !!(it && it.cuffs);
+    });
     const face = faceOf(pet, i);
     const sig = wornSig(i) + '|face' + (face || '');
     if (sig === pet.artSig) return;
@@ -305,6 +312,10 @@
       D(over.getContext('2d'), 'stand', 0, 0, W, H, i, it => !ownsTop(it), 'over');
       D(overTop.getContext('2d'), 'stand', 0, 0, W, H, i, ownsTop, 'over');
       const sx = stiff.getContext('2d');
+      // cuffs: true (outfit_config.js): the sleeves are part of the top, not the arms:
+      // carried by the body and drawn just under the top, so they stay stuck to it.
+      D(sx, 'stand', 0, 0, W, H, i, it => it.cuffs, 'armL');
+      D(sx, 'stand', 0, 0, W, H, i, it => it.cuffs, 'armR');
       D(sx, 'stand', 0, 0, W, H, i, it => !it.whole && (it.stiff || (covers(it) && !it.hangs && !it.blows)));
       // A dress (or other hanging garment) that covers the chest: its top half
       // goes over the chest like a top, its skirt still hangs / blows.
@@ -321,8 +332,8 @@
         sx.drawImage(tops, 0, 0);
       }
       D(under.getContext('2d'), 'stand', 0, 0, W, H, i, null, 'under');
-      D(armL.getContext('2d'), 'stand', 0, 0, W, H, i, null, 'armL');
-      D(armR.getContext('2d'), 'stand', 0, 0, W, H, i, null, 'armR');
+      D(armL.getContext('2d'), 'stand', 0, 0, W, H, i, it => !it.cuffs, 'armL');
+      D(armR.getContext('2d'), 'stand', 0, 0, W, H, i, it => !it.cuffs, 'armR');
       D(legL.getContext('2d'), 'stand', 0, 0, W, H, i, null, 'legL');
       D(legR.getContext('2d'), 'stand', 0, 0, W, H, i, null, 'legR');
     }
@@ -333,7 +344,7 @@
     try {
       const partImgs = face ? Object.assign({}, pet.partImgs, { head: pet.faceImgs[face] }) : pet.partImgs;
       pet.body.buildArt(partImgs, cloth, cs, hang, over, under, blow,
-        isFinite(blowFrom) ? blowFrom : null, stiff, { arm_L: armL, arm_R: armR, leg_L: legL, leg_R: legR, legTop }, back, overTop);
+        isFinite(blowFrom) ? blowFrom : null, stiff, { arm_L: armL, arm_R: armR, armArt: !!pet.body.armsLocked, leg_L: legL, leg_R: legR, legTop }, back, overTop);
     } catch (err) {
       // Reading the pictures' pixels is refused when the game is opened as a
       // file:// page (serve it over http, e.g. GitHub Pages). Keep the sprite.
