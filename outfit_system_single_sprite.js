@@ -87,6 +87,7 @@
       hangs: entry.hangs,
       stiff: entry.stiff,
       whole: entry.whole,
+      cuffs: entry.cuffs,
       blows: entry.blows,
     };
   }
@@ -163,6 +164,7 @@
             hangs: it.hangs === undefined ? c.hangs : !!it.hangs,
             stiff: !!it.stiff,
             whole: !!it.whole,
+            cuffs: !!it.cuffs,
             blows: it.blows === undefined ? c.blows : it.blows,
           };
       });

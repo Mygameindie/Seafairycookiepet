@@ -657,7 +657,7 @@
       // when the worn garments have them, nothing is cut along the arms and the
       // stiff garments stay whole. Without them the old cuts are used.
       const armPic = id => armCloth && armCloth[id] && armCloth[id].getContext('2d').getImageData(0, 0, CW, CH).data.some((v, i) => i % 4 === 3 && v > 6);
-      const armArt = !!(armPic('arm_L') || armPic('arm_R'));
+      const armArt = !!(armPic('arm_L') || armPic('arm_R') || armPic('arm_L_top') || armPic('arm_R_top'));
       const hasRegion = p => p.region && !(armArt && (p.id === 'arm_L' || p.id === 'arm_R'));
 
       const bboxOf = (ctx) => {
@@ -1000,8 +1000,10 @@
       }
       // Sleeves: each arm's clothing is its own picture, drawn above the body and
       // turned with that arm (nothing is cut out of the garments).
-      for (const id of ['arm_L', 'arm_R', 'leg_L', 'leg_R']) {
-        const src = armCloth && armCloth[id];
+      for (const sid of ['arm_L', 'arm_R', 'arm_L_top', 'arm_R_top', 'leg_L', 'leg_R']) {
+        const src = armCloth && armCloth[sid];
+        const onTop = /_top$/.test(sid);           // cuffs: drawn over the top
+        const id = onTop ? sid.slice(0, -4) : sid;
         const def = CFG.parts.find(p => p.id === id);
         if (!src || !def) continue;
         const r = mkRead(CW, CH);
@@ -1012,7 +1014,7 @@
         c.getContext('2d').drawImage(r.c, -b.x0, -b.y0);
         const pv = CFG.particles[def.pivot], ch = CFG.particles[def.child];
         const sleeve = {
-          id: id + '_cloth', pivot: def.pivot, child: def.child, canvas: c,
+          id: sid + '_cloth', pivot: def.pivot, child: def.child, canvas: c,
           ox: pv.x * cs - b.x0, oy: pv.y * cs - b.y0,
           restAngle: Math.atan2(ch.y - pv.y, ch.x - pv.x),
         };
@@ -1043,7 +1045,7 @@
         }
         // A sleeve goes just behind the top (the body's over-the-chest layer), so
         // the top's own picture lies over the sleeve root; without one, last.
-        const topAt = out.findIndex(o => o.id === 'body_over');
+        const topAt = onTop ? -1 : out.findIndex(o => o.id === 'body_over');
         if (topAt >= 0) out.splice(topAt, 0, sleeve); else out.push(sleeve);
       }
       // Back pieces of clothes: behind the legs and body, turned with the torso.
