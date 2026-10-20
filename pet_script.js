@@ -266,7 +266,7 @@
     const W = Math.round(RCFG.SRC_W * cs), H = Math.round(RCFG.SRC_H * cs);
     const sized = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return c; };
     const cloth = sized(), hang = sized(), over = sized(), under = sized(), blow = sized(),
-      stiff = sized(), armL = sized(), armR = sized(), armLTop = sized(), armRTop = sized(), legL = sized(), legR = sized(), legTop = sized(), back = sized(), overTop = sized();
+      stiff = sized(), armL = sized(), armR = sized(), legL = sized(), legR = sized(), legTop = sized(), back = sized(), overTop = sized();
     let blowFrom = Infinity;
     const D = window.drawOutfitOverlay;
     if (typeof D === 'function') {
@@ -321,11 +321,12 @@
         sx.drawImage(tops, 0, 0);
       }
       D(under.getContext('2d'), 'stand', 0, 0, W, H, i, null, 'under');
-      // cuffs: true (outfit_config.js): the sleeves are drawn over the top, not under it.
+      // cuffs: true (outfit_config.js): the sleeves are part of the top, not the arms:
+      // drawn over it on the body's over-the-chest layer, so they stay stuck to it.
       D(armL.getContext('2d'), 'stand', 0, 0, W, H, i, it => !it.cuffs, 'armL');
       D(armR.getContext('2d'), 'stand', 0, 0, W, H, i, it => !it.cuffs, 'armR');
-      D(armLTop.getContext('2d'), 'stand', 0, 0, W, H, i, it => it.cuffs, 'armL');
-      D(armRTop.getContext('2d'), 'stand', 0, 0, W, H, i, it => it.cuffs, 'armR');
+      D(overTop.getContext('2d'), 'stand', 0, 0, W, H, i, it => it.cuffs, 'armL');
+      D(overTop.getContext('2d'), 'stand', 0, 0, W, H, i, it => it.cuffs, 'armR');
       D(legL.getContext('2d'), 'stand', 0, 0, W, H, i, null, 'legL');
       D(legR.getContext('2d'), 'stand', 0, 0, W, H, i, null, 'legR');
     }
@@ -336,7 +337,7 @@
     try {
       const partImgs = face ? Object.assign({}, pet.partImgs, { head: pet.faceImgs[face] }) : pet.partImgs;
       pet.body.buildArt(partImgs, cloth, cs, hang, over, under, blow,
-        isFinite(blowFrom) ? blowFrom : null, stiff, { arm_L: armL, arm_R: armR, arm_L_top: armLTop, arm_R_top: armRTop, leg_L: legL, leg_R: legR, legTop }, back, overTop);
+        isFinite(blowFrom) ? blowFrom : null, stiff, { arm_L: armL, arm_R: armR, armArt: true, leg_L: legL, leg_R: legR, legTop }, back, overTop);
     } catch (err) {
       // Reading the pictures' pixels is refused when the game is opened as a
       // file:// page (serve it over http, e.g. GitHub Pages). Keep the sprite.
