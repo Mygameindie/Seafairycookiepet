@@ -344,7 +344,7 @@
     try {
       const partImgs = face ? Object.assign({}, pet.partImgs, { head: pet.faceImgs[face] }) : pet.partImgs;
       pet.body.buildArt(partImgs, cloth, cs, hang, over, under, blow,
-        isFinite(blowFrom) ? blowFrom : null, stiff, { arm_L: armL, arm_R: armR, armArt: true, leg_L: legL, leg_R: legR, legTop }, back, overTop);
+        isFinite(blowFrom) ? blowFrom : null, stiff, { arm_L: armL, arm_R: armR, armArt: !!pet.body.armsLocked, leg_L: legL, leg_R: legR, legTop }, back, overTop);
     } catch (err) {
       // Reading the pictures' pixels is refused when the game is opened as a
       // file:// page (serve it over http, e.g. GitHub Pages). Keep the sprite.
