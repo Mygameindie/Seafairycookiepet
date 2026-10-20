@@ -258,6 +258,13 @@
   // Cut the clothes up along the body parts and hand them to the skeleton.
   // Only redone when the outfit or the art changes.
   function buildBody(pet, i) {
+    // A garment with cuffs: true (outfit_config.js) has its sleeves stuck to the top,
+    // so the arms can't move away from them.
+    pet.body.armsLocked = Object.keys(window.selectedClothes[i] || {}).some(k => {
+      const cat = (window.dressUpCatalog[i] || window.dressUpCatalog[0] || {})[k];
+      const it = cat && cat.items && cat.items[window.selectedClothes[i][k]];
+      return !!(it && it.cuffs);
+    });
     const face = faceOf(pet, i);
     const sig = wornSig(i) + '|face' + (face || '');
     if (sig === pet.artSig) return;

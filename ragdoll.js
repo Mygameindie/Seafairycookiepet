@@ -490,7 +490,8 @@
       // swinging the body, which needs the bone solve that follows it).
       if (last && tipHeld) return;
       let lo = L.lo, hi = L.hi;
-      if (tipHeld) {
+      if (this.armsLocked && ARM_LIMITS.includes(L)) { lo = hi = 0; }   // cuffs worn: arms stay put
+      else if (tipHeld) {
         // Only the side named in heldLo/heldHi is widened (the arm may go further
         // UP when the pet hangs from that hand, never further down into the body).
         if (L.held === undefined && L.heldLo === undefined && L.heldHi === undefined) return;
