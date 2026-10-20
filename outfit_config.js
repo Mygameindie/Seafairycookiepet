@@ -164,7 +164,7 @@ window.OUTFIT_CONFIG = {
     topUnderwear:      [{ id: "topunderwear1", whole: true }, { id: "topunderwear2", whole: true }, { id: "topunderwear3", whole: true }, { id: "topunderwear4", whole: true }],
     bottomUnderwear:   [{ id: "bottomunderwear1", hangs: true }, "bottomunderwear2", "bottomunderwear3", "bottomunderwear4"],
     onepieceUnderwear: ["onepieceunderwear1"],
-    top:               [{ id: "top1", stiff: true }],
+    top:               [{ id: "top1", stiff: true }, { id: "top2", stiff: true }],
     bottom:            ["pants1","pants2", { id: "skirt1", blows: true }],
     dress:             [{ id: "dress1", back: true }],
     bodysuit:          ["bodysuit1"],
