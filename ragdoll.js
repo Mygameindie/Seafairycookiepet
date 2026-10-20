@@ -965,7 +965,7 @@
         // A stiff garment's share: all of it but what the arms, legs and head took
         // (all of it when the sleeves are their own pictures).
         const t = mkRead(CW, CH);
-        if (!armArt && over) t.x.drawImage(over, 0, 0);
+        if (over) t.x.drawImage(over, 0, 0);   // under the top: a top covers a bra
         const st = mkRead(CW, CH);
         st.x.drawImage(stiff, 0, 0);
         if (!armArt) {
@@ -973,7 +973,6 @@
           for (const o of regionParts) if (!o.offset) shape(st.x, o.region);
         }
         t.x.drawImage(st.c, 0, 0);
-        if (armArt && over) t.x.drawImage(over, 0, 0);
         overAll = t.c;
       }
       if (overTop) {
